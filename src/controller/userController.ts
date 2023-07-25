@@ -16,7 +16,7 @@ import SendResponse from '../utils/commonResponse';
 
 import StatusCodeEnum from '../utils/statusCodeEnum';
 
-import Roles from '../utils/enum';
+// import Roles from '../utils/enum/roles';
 
 import ErrorMessageEnum from '../utils/messages';
 
@@ -60,7 +60,7 @@ export default class userController {
       lastname,
       email: email.toLowerCase(),
       password: encryptedPassword,
-      role: Roles.Admin,
+      // role: Roles.Admin,
       image: image_url
     };
 
@@ -77,7 +77,7 @@ export default class userController {
       }
       let user: userInterface;
       // eslint-disable-next-line prefer-const
-      user = await storeUser.createUser(userAttributes);
+      // user = await storeUser.createUser(userAttributes);
 
       return SendResponse(res, user, StatusCodeEnum.OK);
     } catch (e) {

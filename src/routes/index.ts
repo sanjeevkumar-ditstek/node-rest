@@ -1,10 +1,6 @@
-import { Router } from 'express';
+import userRoute from "../routes/userRoutes";
 
-import router from './userRoutes';
-
-
-const route = Router();
-
-route.use(process.env.BASE_URL, router);
-
-export default route;
+const routes = async (app: any) => {
+	userRoute(app);
+};
+export default routes;

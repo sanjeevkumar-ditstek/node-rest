@@ -1,19 +1,11 @@
-import express from 'express';
+import proxy from "../service/appServiceProxy";
+import { userRoutes } from '../helper/routes';
 
-import userController from '../controller/userController';
+const userRoute = async (app: any) => {
+    app.get(userRoutes.UsersRoute , proxy.auth.authenticate,proxy.user.getUsers);
+	app.post(userRoutes.UsersRoute , proxy.user.create);
+	// app.post("/user/login", proxy.user.login);
+	app.get(userRoutes.UserByIdRoute ,proxy.auth.authenticate, proxy.user.getUserById);
+};
 
-import {auth} from '../middleware/auth';
-
-const router = express.Router();
-
-const controller = new userController();
-
-router.post('/register',auth.upload,controller.create);
-
-router.post('/login',controller.login);
-
-router.get('/welcome',auth.verifyToken,controller.welcome);
-
-router.post('/uploadFiles',auth.multiupload,controller.storeMultiImages);
-
-export default router;
+export default userRoute;

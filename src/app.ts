@@ -2,7 +2,7 @@ import express, { Application } from 'express'
 
 import {connect, ConnectOptions } from 'mongoose'
 
-import route from './routes/index';
+// import route from './routes/index';
 
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 
@@ -44,7 +44,7 @@ export default class App {
     private connectToRoute(){
         this.app.use(express.json());
 
-        this.app.use(route);
+        // this.app.use(route);
     }
 
     private staticAssests(){

@@ -1,3 +1,9 @@
-import App from "./app";
+import { Server } from './helper/server';
+import dotenv from 'dotenv';
+import { connectToMongo }from './utils/mongodb/mongodb'
 
-new App(3000).listen();
+dotenv.config();
+const Port = process.env.PORT;
+const server = new Server(Number(Port));
+server.start();
+connectToMongo()
