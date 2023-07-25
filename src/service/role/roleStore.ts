@@ -39,10 +39,8 @@ export default class RoleStore {
 	public async getById(id: string): Promise<IROLE> {
 		try {
 			let role: IROLE = await RoleModel.findById(id);
-			console.log(role, "role")
 			return role;
 		} catch (e) {
-			console.log(e, "error in modelndjndkj")
 			return Promise.reject(new RoleStore.OPERATION_UNSUCCESSFUL());
 		}
 	}
