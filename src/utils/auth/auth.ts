@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
-// import { GraphQLError } from "graphql";
 dotenv.config();
 
 // export const extractBearerToken = (req: any , res: any , next: any) => {
@@ -9,7 +8,7 @@ dotenv.config();
 //     return next;
 // };
 
-export default function authenticate(req: any , res: any , next: any): any {
+export default function authenticate(req: any, res: any, next: any): any {
     let token = req.headers.authorization;
     jwt.verify(token, process.env.JWT_SECRET, (error, data) => {
         if (error) {

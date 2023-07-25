@@ -1,10 +1,10 @@
-export const userRoutes ={
+export const userRoutes = {
     UsersRoute: "/users",
-    UserByIdRoute:"/user/:id",
+    UserByIdRoute: "/users/:id",
 }
 
-export const roleRoutes ={
+export const roleRoutes = {
     RolesRoute: "/roles",
     RolesByNameRoute: "/get-role-by-name",
-    RoleByIdRoute:"/role/:id",
+    RoleByIdRoute: "/roles/:id",
 }

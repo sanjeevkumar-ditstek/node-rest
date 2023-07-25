@@ -7,9 +7,10 @@ import responseMessage from "../../utils/enum/responseMessage";
 import * as IRoleService from "./IRoleService";
 import { IAppServiceProxy } from "../appServiceProxy";
 import { IApiResponse, toError } from "../../utils/interface/common";
-import { apiResponse , apiFailureResponse } from "../../helper/apiResponses";
-import { createSchema, getSchema , updateSchema} from "../../utils/common/joiSchema/role/roleSchema";
+import { apiResponse } from "../../helper/apiResponses";
+import { createSchema, getSchema, updateSchema } from "../../utils/common/joiSchema/role/roleSchema";
 import { JoiError } from "../../helper/joiErrorHandler";
+import { JoiValidate } from "../../helper/JoiValidate";
 
 export default class RoleService implements IRoleService.IRoleServiceAPI {
     private roleStore = new RoleStore();
@@ -28,19 +29,19 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             data: null,
             status: false
         };
-        
-        const params = createSchema.validate(req.body);
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
-            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+
+        const { error, value } = JoiValidate(createSchema, req.body)
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response)
+            return apiResponse(response);
         }
-        const { name } = params.value;
+        const { name } = value;
 
         // Check if email is already registered
         let existingRole: IROLE;
@@ -53,7 +54,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
                 response.data = null
                 response.status = false
                 response.error = toError(ErrorMessageEnum.ROLE_ALREADY_EXIST)
-                return apiFailureResponse(response)
+                return apiResponse(response)
             }
         } catch (e) {
             console.error(e);
@@ -62,7 +63,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response)
+            return apiResponse(response)
         }
         let result: IROLE = await this.roleStore.createRole({ name });
 
@@ -102,7 +103,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response)
+            return apiResponse(response)
         }
     }
 
@@ -123,23 +124,22 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
         };
 
         const { id } = request.params;
-        const params = getSchema.validate(request.body);
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
-            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+        const { error, value } = JoiValidate(getSchema, { id: request.params.id })
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response)
+            return apiResponse(response);
         }
 
 
         let role: IROLE;
         try {
             role = await this.roleStore.getById(id);
-
             //if user's id is incorrect
             if (!role) {
                 response.statusCode = STATUS_CODES.BAD_REQUEST
@@ -147,7 +147,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
                 response.data = null
                 response.status = false
                 response.error = toError(ErrorMessageEnum.INVALID_USER_ID)
-                return apiFailureResponse(response)
+                return apiResponse(response)
             }
         } catch (e) {
             console.error(e);
@@ -156,13 +156,13 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response)
+            return apiResponse(response)
 
         }
         response.statusCode = STATUS_CODES.OK;
         response.data = role;
         response.statusCode = STATUS_CODES.OK
-        response.message = responseMessage.USERS_FETCHED
+        response.message = responseMessage.ROLE_FETCHED
         response.data = role
         response.status = true
         response.error = null
@@ -181,16 +181,16 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             status: false
         };
 
-        const params = updateSchema.validate(request.body);
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
-            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+        const { error, value } = JoiValidate(updateSchema, request.body)
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response)
+            return apiResponse(response);
         }
 
         let role: IROLE;
@@ -240,16 +240,16 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             status: false
         };
 
-        const params = getSchema.validate({id: request.params.id});
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
-            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+        const { error, value } = JoiValidate(getSchema, { id: request.params.id })
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response)
+            return apiResponse(response);
         }
         let role: IROLE;
         try {
@@ -260,7 +260,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
                 response.message = responseMessage.RECORD_NOT_FOUND
                 response.data = null
                 response.status = false;
-                return apiFailureResponse(response)
+                return apiResponse(response)
             }
             await this.roleStore.delete(request.params.id);
             response.statusCode = STATUS_CODES.OK
@@ -278,7 +278,7 @@ export default class RoleService implements IRoleService.IRoleServiceAPI {
             response.message = ErrorMessageEnum.INTERNAL_ERROR
             response.data = null
             response.status = false;
-            return apiFailureResponse(response)
+            return apiResponse(response)
         }
     };
 

@@ -8,6 +8,8 @@ import { IApiResponse, toError } from "../../utils/interface/common";
 import { apiResponse } from "../../helper/apiResponses";
 import { Response, Request, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default class AuthService implements IAuthService.IAuthServiceAPI {
     // private roleStore = new RoleStore();

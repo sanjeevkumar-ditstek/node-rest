@@ -1,5 +1,6 @@
 import IROLE from "../../utils/interface/role/IRole";
 import { RoleModel } from "../../db/model/roles";
+import mongoose from "mongoose";
 
 export default class RoleStore {
 	public static OPERATION_UNSUCCESSFUL = class extends Error {
@@ -13,7 +14,7 @@ export default class RoleStore {
 	 */
 	public async createRole(roleInput: IROLE): Promise<IROLE> {
 		try {
-			let savedRole:any = await RoleModel.create(roleInput);
+			let savedRole: any = await RoleModel.create(roleInput);
 			return savedRole;
 		} catch (error) {
 			return error;
@@ -37,25 +38,27 @@ export default class RoleStore {
 	 */
 	public async getById(id: string): Promise<IROLE> {
 		try {
-			let role: any = await RoleModel.findOne({_id : id});
+			let role: IROLE = await RoleModel.findById(id);
+			console.log(role, "role")
 			return role;
 		} catch (e) {
+			console.log(e, "error in modelndjndkj")
 			return Promise.reject(new RoleStore.OPERATION_UNSUCCESSFUL());
 		}
 	}
 
 	public async getAll(): Promise<IROLE[]> {
 		try {
-			let roles: any = await RoleModel.find();
+			let roles: any = await RoleModel.find({});
 			return roles
 		} catch (e) {
 			return Promise.reject(new RoleStore.OPERATION_UNSUCCESSFUL());
 		}
 	}
 
-	public async updateById(id: string , payload: any): Promise<IROLE> {
+	public async updateById(id: string, payload: any): Promise<IROLE> {
 		try {
-			let role: any = await RoleModel.findOneAndUpdate({_id: id} , payload);
+			let role: any = await RoleModel.findOneAndUpdate({ _id: id }, payload);
 			return role
 		} catch (e) {
 			return Promise.reject(new RoleStore.OPERATION_UNSUCCESSFUL());
@@ -64,7 +67,7 @@ export default class RoleStore {
 
 	public async delete(id: string): Promise<IROLE> {
 		try {
-			let role: any = await RoleModel.findOneAndDelete({_id: id});
+			let role: any = await RoleModel.findOneAndDelete({ _id: id });
 			return role
 		} catch (e) {
 			return Promise.reject(new RoleStore.OPERATION_UNSUCCESSFUL());

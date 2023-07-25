@@ -7,11 +7,14 @@ import responseMessage from "../../utils/enum/responseMessage";
 import * as IUserService from "./IUserService";
 import { IAppServiceProxy } from "../appServiceProxy";
 import { IApiResponse, toError } from "../../utils/interface/common";
-import { apiResponse , apiFailureResponse} from "../../helper/apiResponses";
+import { apiResponse } from "../../helper/apiResponses";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { JoiError } from "../../helper/joiErrorHandler";
 import { createSchema, getSchema, loginSchema } from "../../utils/common/joiSchema/user/userSchema";
+import dotenv from 'dotenv';
+import { JoiValidate } from "../../helper/JoiValidate";
+dotenv.config();
 
 export default class UserService implements IUserService.IUserServiceAPI {
     private userStore = new UserStore();
@@ -37,20 +40,18 @@ export default class UserService implements IUserService.IUserServiceAPI {
             data: null,
             status: false
         };
-        
-        const params = createSchema.validate(req.body);
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
+        const { error, value } = JoiValidate(createSchema, req.body)
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
             response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response);
+            return apiResponse(response);
         }
-        const { firstname, lastname, email, password, role } = params.value;
-
+        const { firstname, lastname, email, password, role } = value;
         // Check if email is already registered
         let existingUser: IUSER;
         try {
@@ -63,26 +64,18 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 response.data = null
                 response.status = false
                 response.error = toError(ErrorMessageEnum.EMAIL_ALREADY_EXIST)
-                return apiFailureResponse(response);
+                return apiResponse(response);
             }
         } catch (e) {
             console.error(e);
-
             response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR
             response.message = ErrorMessageEnum.INTERNAL_ERROR
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response);
-
+            return apiResponse(response);
         }
 
-        // let rolePayload: IRoleService.IgetRoleByNamePayload = { role };
-        // let roleResponse: IRoleService.IgetRoleByNameResponse = await this.proxy.role.getByName(rolePayload);
-
-        // if (roleResponse.statusCode !== STATUS_CODES.OK) {
-        // 	return roleResponse;
-        // }
         let user: IUSER;
         try {
             const hashPassword = await bcrypt.hash(password, 10);
@@ -95,7 +88,6 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 role
             };
             user = await this.userStore.createUser(attributes);
-
             response.statusCode = STATUS_CODES.OK
             response.message = responseMessage.USER_CREATED
             response.data = user
@@ -110,61 +102,9 @@ export default class UserService implements IUserService.IUserServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response);
-
+            return apiResponse(response);
         }
     };
-
-    // public create = async (
-    // request: IUserService.IRegisterUserRequest,
-    // res: IUserService.IRegisterUserResponse,
-    // ) => {
-    //     const response: IUserService.IRegisterUserResponse = {
-    //         status: STATUS_CODES.UNKNOWN_CODE,
-    //     };
-    //     const schema = Joi.object().keys({
-    //         firstname: Joi.string().required(),
-    //         lastname: Joi.string().required(),
-    //         email: Joi.string().email().required(),
-    //         password: Joi.string().required(),
-    //     });
-    //     const params = schema.validate(request.body);
-    //     if (params.error) {
-    //         console.error(params.error);
-    //         return apiResponse(res, STATUS_CODES.UNPROCESSABLE_ENTITY, ErrorMessageEnum.REQUEST_PARAMS_ERROR, response, true, null);
-    //     }
-    //     const { firstname, lastname, email, password } = params.value;
-
-    //     // Check if email is already registered
-    //     let existingUser: IUSER;
-    //     try {
-    //         existingUser = await this.userStore.getByEmail(email);
-    //         //Error if email id is already exist
-    //         if (existingUser && existingUser?.email) {
-    //             return apiResponse(res, STATUS_CODES.BAD_REQUEST, ErrorMessageEnum.EMAIL_ALREADY_EXIST, response, false, toError(ErrorMessageEnum.EMAIL_ALREADY_EXIST));
-    //         }
-
-    //     } catch (e) {
-    //         console.error(e);
-    //         return apiResponse(res, STATUS_CODES.INTERNAL_SERVER_ERROR, ErrorMessageEnum.INTERNAL_ERROR, response, false, toError(e.message));
-    //     }
-
-    //     let user: IUSER;
-    //     const attributes: IUSER = {
-    //         firstname,
-    //         lastname,
-    //         email: email.toLowerCase(),
-    //         password
-    //     };
-
-    //     try {
-    //         user = await this.userStore.createUser(attributes);
-    //     } catch (e) {
-    //         console.error(e);
-    //         return apiResponse(res, STATUS_CODES.INTERNAL_SERVER_ERROR, ErrorMessageEnum.INTERNAL_ERROR, response, false, toError(e.message));
-    //     }
-    //     return apiResponse(res, STATUS_CODES.OK, responseMessage.USER_CREATED, response, true, null)
-    // };
 
     public getUsers = async (
         request: IUserService.IGetAllUserRequest,
@@ -179,7 +119,6 @@ export default class UserService implements IUserService.IUserServiceAPI {
         };
         try {
             const users: IUSER[] = await this.userStore.getAll();
-
             const response: IApiResponse = {
                 response: res,
                 statusCode: STATUS_CODES.OK,
@@ -188,14 +127,9 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 status: true,
                 error: null
             };
-
-
             return apiResponse(response)
-
         } catch (e) {
             console.log(e)
-
-
             const response: IApiResponse = {
                 response: res,
                 statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR,
@@ -204,66 +138,9 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 status: false,
                 error: toError(e.message)
             };
-
-
-            return apiFailureResponse(response)
+            return apiResponse(response)
         }
     }
-
-    /**
-     * User login
-     */
-    // public login = async (
-    // 	request: IUserService.ILoginUserRequest,
-    // 	res: IUserService.ILoginUserResponse,
-    // ) => {
-    // 	const response: IUserService.ILoginUserResponse = {
-    // 		status: STATUS_CODES.UNKNOWN_CODE,
-    // 	};
-    // 	const schema = Joi.object().keys({
-    // 		email: Joi.string().email().required(),
-    // 		password: Joi.string().required(),
-    // 	});
-    // 	const params = schema.validate(request.body);
-
-    // 	if (params.error) {
-    // 		console.error(params.error);
-    // 		response.status = STATUS_CODES.UNPROCESSABLE_ENTITY;
-    // 		response.error = toError(params.error.details[0].message);
-    // 		return apiResponse(res, response);
-    // 	}
-    // 	const { email, password } = params.value;
-    // 	let user: IUSER;
-    // 	try {
-    // 		//get user bu email id to check it exist or not
-    // 		user = await this.userStore.getByEmail(email);
-    // 		//if credentials are incorrect
-    // 		if (!user) {
-    // 			response.status = STATUS_CODES.UNAUTHORIZED;
-    // 			response.error = toError(ErrorMessageEnum.INVALID_CREDENTIALS);
-    // 			return apiResponse(res, response);
-    // 		}
-    // 	} catch (e) {
-    // 		console.error(e);
-    // 		response.status = STATUS_CODES.INTERNAL_SERVER_ERROR;
-    // 		response.error = toError(e.message);
-    // 		return apiResponse(res, response);
-    // 	}
-
-    // 	//comparing password to insure that password is correct
-    // 	const isValid = await bcrypt.compare(password, user?.password);
-
-    // 	//if isValid or user.password is null
-    // 	if (!isValid || !user?.password) {
-    // 		response.status = STATUS_CODES.UNAUTHORIZED;
-    // 		response.error = toError(ErrorMessageEnum.INVALID_CREDENTIALS);
-    // 		return apiResponse(res, response);
-    // 	}
-    // 	response.status = STATUS_CODES.OK;
-    // 	response.token = this.generateJWT(user);
-    // 	response.user = user;
-    // 	return apiResponse(res, response);
-    // };
 
     /**
      * Get user by Id
@@ -280,28 +157,22 @@ export default class UserService implements IUserService.IUserServiceAPI {
             status: false
         };
 
-        const params = getSchema.validate(request.params);
-
-        if (params.error) {
-            console.error(params.error);
-
-
-            response.response = res
-            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+        const { error, value } = JoiValidate(getSchema, { id: request.params.id })
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
-            response.error = toError(params.error.details[0].message)
-
-
-            return apiFailureResponse(response)
+            response.error = paramsError
+            return apiResponse(response);
         }
 
-        const { id } = params.value;
+        const { id } = value;
         let user: IUSER;
         try {
             user = await this.userStore.getById(id);
-
             //if user's id is incorrect
             if (!user) {
                 response.statusCode = STATUS_CODES.BAD_REQUEST;
@@ -309,9 +180,7 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 response.data = null
                 response.status = false
                 response.error = toError(ErrorMessageEnum.INVALID_USER_ID);
-
-
-                return apiFailureResponse(response)
+                return apiResponse(response)
             }
         } catch (e) {
             console.error(e);
@@ -320,9 +189,7 @@ export default class UserService implements IUserService.IUserServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response)
-
-
+            return apiResponse(response)
         }
         response.statusCode = STATUS_CODES.OK;
         response.message = responseMessage.USER_FETCHED
@@ -343,16 +210,16 @@ export default class UserService implements IUserService.IUserServiceAPI {
             status: false
         };
         let user: IUSER;
-        const params = loginSchema.validate(req.body);
-        if (params.error) {
-            console.error(params.error);
-            let paramsError = JoiError(params.error)
+        const { error, value } = JoiValidate(loginSchema, req.body)
+        if (error) {
+            console.error(error);
+            let paramsError = JoiError(error)
             response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
             response.error = paramsError
-            return apiFailureResponse(response);
+            return apiResponse(response);
         }
         try {
             user = await this.userStore.getByEmail(email);
@@ -362,7 +229,7 @@ export default class UserService implements IUserService.IUserServiceAPI {
                 response.data = null
                 response.status = false
                 response.error = toError(ErrorMessageEnum.USER_NOT_EXIST)
-                return apiFailureResponse(response)
+                return apiResponse(response)
             }
             const isValid = await bcrypt.compare(password, user?.password);
 
@@ -387,7 +254,7 @@ export default class UserService implements IUserService.IUserServiceAPI {
             response.data = null
             response.status = false
             response.error = toError(e.message)
-            return apiFailureResponse(response)
+            return apiResponse(response)
 
         }
     };

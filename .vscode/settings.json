@@ -1,0 +1,29 @@
+{
+  // Editor settings
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.wordWrap": "off",
+  "editor.formatOnSave": true,
+  // Language-specific settings
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  // Workspace settings
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+  // Extensions settings
+  // "emmet.includeLanguages": {
+  //   "javascript": "javascriptreact"
+  // },
+  // Debug settings
+  "debug.node.autoAttach": "on",
+  // Terminal settings
+  // "terminal.integrated.shell.osx": "/bin/zsh",
+  // "terminal.integrated.fontSize": 14,
+  // Git settings
+  "git.enableSmartCommit": true,
+  // Live Server settings (if you have the Live Server extension installed)
+  // "liveServer.settings.donotShowInfoMsg": true
+}

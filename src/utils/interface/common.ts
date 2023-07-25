@@ -4,19 +4,19 @@ import { extend } from "joi";
 
 export interface IResponse {
 	statusCode: StatusCodeEnum;
-    message: string;
-    data: any;
-    status: boolean;    
+	message: string;
+	data: any;
+	status: boolean;
 	error?: IError;
 }
 
 export interface IApiResponse extends IResponse {
-    response: any
+	response: any
 }
 
 export interface IError {
-	message?: string;
-	code?: string;
+	message?: any;
+	error?: any;
 }
 
 export function joiToError(joiError: any): IError {
