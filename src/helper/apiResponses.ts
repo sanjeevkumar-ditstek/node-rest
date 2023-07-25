@@ -4,12 +4,26 @@
 import { IApiResponse } from "src/utils/interface/common";
 
 
+
 export const apiResponse = (response: IApiResponse) => {
     response.response.status(response.statusCode).json({
         message:
             response.message, data: response.data,
         status:
             response.status,
-        error: response.error
+        error: response.error,
+    });
+}
+
+export const apiFailureResponse = (response: IApiResponse) => {
+    response.response.status(response.statusCode).json({
+        message:
+            response.message, data: response.data,
+        status:
+            response.status,
+        error: {
+            message: response.error.message,
+            code: response.error.code
+        }
     });
 }

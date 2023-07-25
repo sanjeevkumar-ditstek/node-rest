@@ -1,23 +1,51 @@
-# Rest-api
+Clone down this repository. You will need node and npm installed globally on your machine.
 
-## Getting started
+## Getting Started
 
-The command below will install all node_modules, link required packages and start the application.
+This is a simple user crud application build in node using mongoose odm and typescript language.
 
-`npm install && npm run start`
+### Prerequisites
 
-### API
-The main backend application that handles interacting with user login and registration and the database. The application exposes a GraphQL endpoint on port 3000.
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
 
-### Models
-Various models that are shared between the packages above.
+### Installation
 
-### Utils
-Various utility functions that are shared between the packages above.
+_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
 
-## Database
-architecture uses the MongoDB database hosted by MongoDB Atlas (`https://localhost:27017/jwt-crud`).
+1. Clone the repo
+   ```sh
+   git clone https://github.com/sanjeevkumar-ditstek/node-rest
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Enter your mongodb_url env file.
+   ```js
+   MONGO_URL = ENTER YOUR URL
+   ```
 
-## 3rd Party 
-GitHub
-NPM
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Technologies Used
+
+- NodeJs
+- ExpressJs
+- TypeScript
+- Installation and Setup Instructions (backend)
+
+### Installation and Setup Instructions
+
+`npm install`
+
+To Start Server:
+
+`npm run start`
+
+To Access API on:
+
+`http://localhost:3000`

@@ -1,7 +1,7 @@
 import mongoose, { model } from "mongoose";
 import userInterface from "../../utils/interface/store/user";
 import { nanoid } from "nanoid";
-import Roles from "src/utils/enum/roles";
+import Roles from "../../utils/enum/roles";
 const schema = mongoose.Schema;
 const userSchema = new schema<userInterface>({
     _id: {

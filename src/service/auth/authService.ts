@@ -6,7 +6,7 @@ import * as IAuthService from "./IAuthService";
 import { IAppServiceProxy } from "../appServiceProxy";
 import { IApiResponse, toError } from "../../utils/interface/common";
 import { apiResponse } from "../../helper/apiResponses";
-import { Response, Request, NextFunction } from "express"
+import { Response, Request, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export default class AuthService implements IAuthService.IAuthServiceAPI {
@@ -33,11 +33,11 @@ export default class AuthService implements IAuthService.IAuthServiceAPI {
         jwt.verify(token, process.env.JWT_SECRET, (error, data: IAuthService.IAuthJWTData) => {
             if (error) {
                 console.error(error);
-                response.statusCode = STATUS_CODES.UNAUTHORIZED,
-                    response.message = ErrorMessageEnum.UNAUTHORIZED
-                response.data = null,
-                    response.status = false,
-                    response.error = toError(error.message)
+                response.statusCode = STATUS_CODES.UNAUTHORIZED
+                response.message = ErrorMessageEnum.UNAUTHORIZED
+                response.data = null
+                response.status = false
+                response.error = toError(error.message)
                 return apiResponse(response)
             } else if (data) {
                 let { id, email, role } = data;

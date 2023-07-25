@@ -7,9 +7,11 @@ import responseMessage from "../../utils/enum/responseMessage";
 import * as IUserService from "./IUserService";
 import { IAppServiceProxy } from "../appServiceProxy";
 import { IApiResponse, toError } from "../../utils/interface/common";
-import { apiResponse } from "../../helper/apiResponses";
+import { apiResponse , apiFailureResponse} from "../../helper/apiResponses";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { JoiError } from "../../helper/joiErrorHandler";
+import { createSchema, getSchema, loginSchema } from "../../utils/common/joiSchema/user/userSchema";
 
 export default class UserService implements IUserService.IUserServiceAPI {
     private userStore = new UserStore();
@@ -35,22 +37,17 @@ export default class UserService implements IUserService.IUserServiceAPI {
             data: null,
             status: false
         };
-        const schema = Joi.object().keys({
-            firstname: Joi.string().required(),
-            lastname: Joi.string().required(),
-            email: Joi.string().email().required(),
-            password: Joi.string().required(),
-            role: Joi.string().required(),
-        });
-        const params = schema.validate(req.body);
+        
+        const params = createSchema.validate(req.body);
         if (params.error) {
             console.error(params.error);
+            let paramsError = JoiError(params.error)
             response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
             response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
             response.data = null
             response.status = false
-            response.error = params.error
-            return apiResponse(response);
+            response.error = paramsError
+            return apiFailureResponse(response);
         }
         const { firstname, lastname, email, password, role } = params.value;
 
@@ -61,22 +58,22 @@ export default class UserService implements IUserService.IUserServiceAPI {
             //Error if email id is already exist
             if (existingUser && existingUser?.email) {
 
-                response.statusCode = STATUS_CODES.BAD_REQUEST,
-                    response.message = ErrorMessageEnum.EMAIL_ALREADY_EXIST,
-                    response.data = null,
-                    response.status = false,
-                    response.error = toError(ErrorMessageEnum.EMAIL_ALREADY_EXIST)
-                return apiResponse(response);
+                response.statusCode = STATUS_CODES.BAD_REQUEST
+                response.message = ErrorMessageEnum.EMAIL_ALREADY_EXIST
+                response.data = null
+                response.status = false
+                response.error = toError(ErrorMessageEnum.EMAIL_ALREADY_EXIST)
+                return apiFailureResponse(response);
             }
         } catch (e) {
             console.error(e);
 
-            response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR,
-                response.message = ErrorMessageEnum.INTERNAL_ERROR,
-                response.data = null,
-                response.status = false,
-                response.error = toError(e.message)
-            return apiResponse(response);
+            response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR
+            response.message = ErrorMessageEnum.INTERNAL_ERROR
+            response.data = null
+            response.status = false
+            response.error = toError(e.message)
+            return apiFailureResponse(response);
 
         }
 
@@ -99,21 +96,21 @@ export default class UserService implements IUserService.IUserServiceAPI {
             };
             user = await this.userStore.createUser(attributes);
 
-            response.statusCode = STATUS_CODES.OK,
-                response.message = responseMessage.USER_CREATED,
-                response.data = user,
-                response.status = true,
-                response.error = null
+            response.statusCode = STATUS_CODES.OK
+            response.message = responseMessage.USER_CREATED
+            response.data = user
+            response.status = true
+            response.error = null
             return apiResponse(response);
 
         } catch (e) {
             console.error(e);
-            response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR,
-                response.message = ErrorMessageEnum.INTERNAL_ERROR,
-                response.data = null,
-                response.status = false,
-                response.error = toError(e.message)
-            return apiResponse(response);
+            response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR
+            response.message = ErrorMessageEnum.INTERNAL_ERROR
+            response.data = null
+            response.status = false
+            response.error = toError(e.message)
+            return apiFailureResponse(response);
 
         }
     };
@@ -209,7 +206,7 @@ export default class UserService implements IUserService.IUserServiceAPI {
             };
 
 
-            return apiResponse(response)
+            return apiFailureResponse(response)
         }
     }
 
@@ -283,25 +280,21 @@ export default class UserService implements IUserService.IUserServiceAPI {
             status: false
         };
 
-        const schema = Joi.object().keys({
-            id: Joi.string().required(),
-        });
-
-        const params = schema.validate(request.params);
+        const params = getSchema.validate(request.params);
 
         if (params.error) {
             console.error(params.error);
 
 
-            response.response = res,
-                response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY,
-                response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR,
-                response.data = null,
-                response.status = false,
-                response.error = toError(params.error.details[0].message)
+            response.response = res
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY
+            response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
+            response.data = null
+            response.status = false
+            response.error = toError(params.error.details[0].message)
 
 
-            return apiResponse(response)
+            return apiFailureResponse(response)
         }
 
         const { id } = params.value;
@@ -312,30 +305,30 @@ export default class UserService implements IUserService.IUserServiceAPI {
             //if user's id is incorrect
             if (!user) {
                 response.statusCode = STATUS_CODES.BAD_REQUEST;
-                response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR,
-                    response.data = null,
-                    response.status = false,
-                    response.error = toError(ErrorMessageEnum.INVALID_USER_ID);
+                response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
+                response.data = null
+                response.status = false
+                response.error = toError(ErrorMessageEnum.INVALID_USER_ID);
 
 
-                return apiResponse(response)
+                return apiFailureResponse(response)
             }
         } catch (e) {
             console.error(e);
             response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR;
             response.message = ErrorMessageEnum.INTERNAL_ERROR
-            response.data = null,
-                response.status = false,
-                response.error = toError(e.message)
-            return apiResponse(response)
+            response.data = null
+            response.status = false
+            response.error = toError(e.message)
+            return apiFailureResponse(response)
 
 
         }
         response.statusCode = STATUS_CODES.OK;
         response.message = responseMessage.USER_FETCHED
-        response.data = user,
-            response.status = true,
-            response.error = null
+        response.data = user
+        response.status = true
+        response.error = null
         return apiResponse(response)
     };
 
@@ -350,15 +343,26 @@ export default class UserService implements IUserService.IUserServiceAPI {
             status: false
         };
         let user: IUSER;
+        const params = loginSchema.validate(req.body);
+        if (params.error) {
+            console.error(params.error);
+            let paramsError = JoiError(params.error)
+            response.statusCode = STATUS_CODES.UNPROCESSABLE_ENTITY;
+            response.message = ErrorMessageEnum.REQUEST_PARAMS_ERROR
+            response.data = null
+            response.status = false
+            response.error = paramsError
+            return apiFailureResponse(response);
+        }
         try {
             user = await this.userStore.getByEmail(email);
             if (!user) {
                 response.statusCode = STATUS_CODES.BAD_REQUEST
                 response.message = ErrorMessageEnum.USER_NOT_EXIST
-                response.data = null,
-                    response.status = false,
-                    response.error = toError(ErrorMessageEnum.USER_NOT_EXIST)
-                return apiResponse(response)
+                response.data = null
+                response.status = false
+                response.error = toError(ErrorMessageEnum.USER_NOT_EXIST)
+                return apiFailureResponse(response)
             }
             const isValid = await bcrypt.compare(password, user?.password);
 
@@ -372,18 +376,18 @@ export default class UserService implements IUserService.IUserServiceAPI {
             let token: string = this.generateJWT(user);
             response.statusCode = STATUS_CODES.OK;
             response.message = responseMessage.USER_FETCHED
-            response.data = { user, token },
-                response.status = true,
-                response.error = null
+            response.data = { user, token }
+            response.status = true
+            response.error = null
             return apiResponse(response)
 
         } catch (e) {
             response.statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR;
             response.message = ErrorMessageEnum.INTERNAL_ERROR
-            response.data = null,
-                response.status = false,
-                response.error = toError(e.message)
-            return apiResponse(response)
+            response.data = null
+            response.status = false
+            response.error = toError(e.message)
+            return apiFailureResponse(response)
 
         }
     };

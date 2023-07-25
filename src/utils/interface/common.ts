@@ -15,8 +15,8 @@ export interface IApiResponse extends IResponse {
 }
 
 export interface IError {
-	message?: any;
-	status?: ErrorMessageEnum;
+	message?: string;
+	code?: string;
 }
 
 export function joiToError(joiError: any): IError {
