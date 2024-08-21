@@ -7,7 +7,7 @@ import {auth} from '../middleware/auth';
 const router = express.Router();
 
 const controller = new userController();
-
+router.post('/',controller.health);
 router.post('/register',auth.upload,controller.create);
 
 router.post('/login',controller.login);

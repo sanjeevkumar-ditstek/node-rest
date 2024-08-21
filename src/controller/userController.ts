@@ -180,4 +180,9 @@ export default class userController {
 
     return res.status(200).send({ msg, data });
   }
+
+  public async health(req: Request, res: Response) {
+    return SendResponse(res, {message : "Application is running"}, StatusCodeEnum.OK);
+  }
+  
 }
