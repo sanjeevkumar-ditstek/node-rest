@@ -1,5 +1,3 @@
-
-export default interface multiImages{
-
-    filename:string
+export default interface multiImages {
+  filename: string;
 }
